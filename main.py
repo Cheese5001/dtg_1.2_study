@@ -1,6 +1,38 @@
+# to do:
+    # create study mode
+    # make quiz mode work
+        #scoring
+        #
+    # decide how difficuluts will work
+        # maby swap it with subject selction 
+    # make end menu work
+        #quiting and restartung
+    # 
 
-questions = {
-    "vertical erosion of a river bed": "V-shaped valleys"
+
+
+geo_questions = {
+    "vertical erosion of a river bed": "v-shaped valleys",
+    "erosion at different rock hardness in a river's path": "waterfalls",
+    "outside bend erosion and inside bend deposition": "meanders",
+    "a river bend being cut off": "ox-bow lake",
+    "river flooding and deposition of heavy sediment along the banks": "levees",
+    "finer sediment spread across valley during floods": "flood plain",
+    "low viscosity lava oozing gently": "shield volcano",
+    "medium viscosity lava with repeated eruptions building a cone": "Stratovolcano",
+    "high viscosity lava with explosive eruption and collapse": "Caldera",
+    "convection currents in the mantle pulling plates apart": "Mid-ocean ridges",
+    "convection currents in the mantle pushing one plate under another": "Ocean trenches",
+    "longshore drift depositing sand beyond a headland": "Spits",
+    "waves piling up sand offshore into a ridge": "Sand bar",
+    "snow compacting in mountain hollows and eroding into a deep hole": "Corrie lake",
+    "glacier carving through a valley": "U-shaped valley",
+    "a glacier eroding below sea level and flooding with seawater": "Fjord",
+    "glacier pushing rock debris to its sides": "Lateral moraine",
+    "glacier depositing rock debris at its end": "Terminal moraine",
+#   "waves eroding cliffs by air pressure in cracks": "Hydraulic action features (e.g. notches, caves)",
+    "destructive waves with strong swash and weak backwash": "Beach erosion",
+    "constructive waves with weak swash and strong backwash": "Beach deposition",
     }
 
 
@@ -41,13 +73,10 @@ def difficulty_selection():
 
     if difficulty == "easy" or difficulty == "e":
         difficulty = "easy" #so messsgae is correct
-
     elif difficulty == "medium" or difficulty == "m":
         difficulty = "medium"
-
     elif difficulty == "hard" or difficulty == "h":
         difficulty = "hard"
-
     else:
         print("Invalid difficulty selected, defaulting to Easy mode.")
         difficulty = "easy"
@@ -61,20 +90,20 @@ def study_mode():
 
 
 def quiz_mode():
-    difficulty = difficulty_selection()
+    #difficulty = difficulty_selection()
     score = 0
-    for key in questions.keys():
+    for key in geo_questions.keys():
         print(f"What geographical feature is formed through {key}?")
         response = input("> ")
-        if response.lower() == questions[key].lower():
+        if geo_questions[key].lower() in response.lower():#so if responce contains -- not just is
             print("Correct!")
             score += 1
         else:
-            print(f"Wrong! The correct answer is: {questions[key]}")
+            print(f"Wrong! The correct answer is: {geo_questions[key].upper()}")
 
-        score = scoring(score, difficulty) # add more factors 
+        # score = scoring(score, difficulty) # add more factors 
 
-        return score
+        # return score
 
 
 def scoring():
