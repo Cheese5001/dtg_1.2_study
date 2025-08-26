@@ -1,26 +1,34 @@
 # to do:
-    # create study mode
+    #
+    # clean stuff up
+        # decide what to call things, call game studying and study mode learn mode
     # make quiz mode work
         #scoring
-        #
-    # decide how difficuluts will work
-        # maby swap it with subject selction 
+    # make it more flexable -- allow for different question types
     # make end menu work
         #quiting and restartung
     # high scores in csv
+    #able to load in csv of new questions
+    #change dictionary to custom class
 
+
+import random
+import csv
+import time
+
+user_name = ""
 
 tectonic_questions = {
 
     "low viscosity lava oozing gently": "shield volcano",
     "medium viscosity lava with repeated eruptions building a cone": "Stratovolcano",
     "high viscosity lava with explosive eruption and collapse": "Caldera",
+    "convection currents in the mantle pushing one plate under another": "subduction zone",
+    "convection currents in the mantle pulling plates apart": "rift valleys or mid-ocean ridges",
 
     }
 
 coastal_questions = {
-    "convection currents in the mantle pulling plates apart": "mid-ocean ridges",
-    "convection currents in the mantle pushing one plate under another": "ocean trenches",
     "longshore drift depositing sand beyond a headland": "spits",
     "waves piling up sand offshore into a ridge": "sand bar",
 #   "waves eroding cliffs by air pressure in cracks": "Hydraulic action features (e.g. notches, caves)",
@@ -38,6 +46,8 @@ glacial_questions = {
 
 fluvial_questions = {
     "vertical erosion of a river bed": "v-shaped valleys",
+    #"vertical erosion of a river bed": ["v-shaped valleys", "v shaped valleys", "v-shaped valley", "v shaped valley"],
+    #all corret awnsers 
     "erosion at different rock hardness in a river's path": "waterfalls",
     "outside bend erosion and inside bend deposition": "meanders",
     "a river bend being cut off": "ox-bow lake",
@@ -97,47 +107,70 @@ def process_selection():
         process = "fluvial"
         questions = fluvial_questions
 
-    print(f"Process set to: {process}")
+    print(f"Process set to: {process.capitalize()}")
     return process, questions
 
 def study_mode():
-    process = process_selection()
-    pass
+    process, questions = process_selection()
 
+    for question, answer in questions.items():
+        print(f"Study this: A {answer} is formed though {question}.")
 
 def quiz_mode():
 
-
     process, questions = process_selection()
-
-
+    total_time = 0
     score = 0
-    for key in questions.keys():
-        print(f"What geographical feature is formed through {key}?")
+    start_time = time.time()
+    for question, answer in questions.items():
+        start_time = time.time()
+        print(f"What geographical feature is formed through {question}?")
         response = input("> ")
-        if questions[key].lower() in response.lower():#so if responce contains, not just is -- so both waterfall and waterfalls
-            print("Correct!")
+        if response.lower() in answer.lower():
+            #so if responce contains, not just is -- so both waterfall and waterfalls
+            # this could be a problom, if inupt = a , then 'a' is most of the time in the awsner so you can cheat it. 
+            #maybe set chater minimum length   or   have a list of corrent aswners as 
+            #give or take 3 chaters in lenth 
+
             score += 1
+            if response.lower() == answer.lower():
+                print("Exact match!")
+                score += 1
+            else:
+                print(f"Close enough!, it is {answer.title()}")
         # if close, give a hint
         # just give a hint anyway
         # give a few tries
         else:
-            print(f"Wrong! The correct answer is: {questions[key].upper()}")
+            print(f"Wrong! The correct answer is: {answer.title()}")
+        end_time = time.time()
+        elapsed_time = end_time - start_time
+        total_time = total_time + elapsed_time
 
-        score = scoring(score, ) # add more factors 
+    final_score = scoring(score, total_time) # add more factors
 
-        return score
+    return final_score
 
 
-def scoring():
-    score = 1
-    return score
+def scoring(score, total_time):
+    #print(f"You answered {no_questions} questions correctly, in {total_time:.2f} seconds.")
+    final_score = score
+    return final_score
 
-def end_menu():
-    pass
+def end_menu(username, score):
+    print(f"Thank you for learning, {username}!")
 
-def main():
-    user_name = start_menu()
+    if input("Press 'Enter' to do something else or 'q' to quit.").lower() == 'q':
+        print("Goodbye! 👋")
+        exit()
+    else:
+        main(user_name)
+
+def main(user_name):
+    if user_name == "":
+        user_name = start_menu()
+    else:
+        print(f"Welcome back {user_name}!")
     mode = choose_mode()
 
     if mode == "study":
@@ -147,5 +180,4 @@ def main():
 
     end_menu(user_name, score)
 
-
-quiz_mode()
+main("")
