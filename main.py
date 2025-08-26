@@ -1,5 +1,6 @@
 # to do:
-    #
+    #randoize odaer of dicoenrys apperieng 
+
     # clean stuff up
         # decide what to call things, call game studying and study mode learn mode
     # make quiz mode work
