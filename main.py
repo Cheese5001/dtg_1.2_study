@@ -60,7 +60,6 @@ fluvial_questions = {
 def start_menu() -> str:
     print("Welcome to my Geography quiz game!")
     user_name = input("What is your name today? >> ")
-    print(f"Hello {user_name}, welcome to my lame game!")
     if user_name == "":
         user_name = "Player"
     elif user_name.lower() == "baker":
@@ -69,11 +68,9 @@ def start_menu() -> str:
         exit()
     else:
         pass
+    print(f"Hello {user_name}, welcome to my lame game!")
 
     return user_name
-
-
-    pass
 
 def choose_mode()-> str:
     print("Choose a mode: study(S) or quiz(Q)")
@@ -117,38 +114,57 @@ def study_mode():
     for question, answer in questions.items():
         print(f"Study this: A {answer} is formed though {question}.")
 
+def quiz_answer_checker(response, answer, score):
+    if response.lower() in answer.lower() and len(response) > 4:
+            #length > than 4 so you cant cheat
+            #so if responce contains, not just is -- so both waterfall and waterfalls
+            # or have a list of correct answers as
+        if response.lower() == answer.lower():
+            print("Exact match!")
+            score += 2
+        else:
+            print(f"you are close, Try one more time")
+            response = input("> ")
+            if response.lower() == answer.lower():
+                print("correct!")
+                score += 1
+            else:
+                print(f"Wrong! The correct answer is: {answer.title()}")
+        # if close, give a hint
+        # just give a hint anyway
+        # give a few tries
+    elif response == "":
+        response = input("Please enter an answer: ")
+    else:
+        print(f"Wrong! The correct answer is: {answer.title()}")
+
+    return score
+
 def quiz_mode():
 
     process, questions = process_selection()
     total_time = 0
     score = 0
-    start_time = time.time()
+    questions_answered = 0
+    number_of_questions = len(questions)
+
     for question, answer in questions.items():
         start_time = time.time()
         print(f"What geographical feature is formed through {question}?")
         response = input("> ")
-        if response.lower() in answer.lower():
-            #so if responce contains, not just is -- so both waterfall and waterfalls
-            # this could be a problom, if inupt = a , then 'a' is most of the time in the awsner so you can cheat it. 
-            #maybe set chater minimum length   or   have a list of corrent aswners as 
-            #give or take 3 chaters in lenth 
+        score = quiz_answer_checker(response, answer, score)
 
-            score += 1
-            if response.lower() == answer.lower():
-                print("Exact match!")
-                score += 1
-            else:
-                print(f"Close enough!, it is {answer.title()}")
-        # if close, give a hint
-        # just give a hint anyway
-        # give a few tries
-        else:
-            print(f"Wrong! The correct answer is: {answer.title()}")
         end_time = time.time()
         elapsed_time = end_time - start_time
         total_time = total_time + elapsed_time
 
-    final_score = scoring(score, total_time) # add more factors
+        # progress message
+        questions_answered += 1
+
+        print(f"you have {number_of_questions - questions_answered} remaining questions, you have answered {questions_answered} questions in {total_time:.2f} seconds")
+        #edge case for non purlas , ect 
+
+    final_score = scoring(score, total_time, number_of_questions) # add more factors
 
     return final_score
 
@@ -158,8 +174,8 @@ def scoring(score, total_time):
     final_score = score
     return final_score
 
-def end_menu(username, score):
-    print(f"Thank you for learning, {username}!")
+def end_menu(user_name, score):
+    print(f"Thank you for learning, {user_name}!")
 
     if input("Press 'Enter' to do something else or 'q' to quit.").lower() == 'q':
         print("Goodbye! 👋")
