@@ -4,6 +4,7 @@
     # clean stuff up
         # decide what to call things, call game studying and study mode learn mode
     # make quiz mode work
+        #omit hyphens and spaces
         #scoring
     # make it more flexable -- allow for different question types
     # make end menu work
@@ -11,6 +12,7 @@
     # high scores in csv
     #able to load in csv of new questions
     #change dictionary to custom class
+
 
 
 import random
@@ -33,8 +35,8 @@ coastal_questions = {
     "longshore drift depositing sand beyond a headland": "spits",
     "waves piling up sand offshore into a ridge": "sand bar",
 #   "waves eroding cliffs by air pressure in cracks": "Hydraulic action features (e.g. notches, caves)",
-    "destructive waves with strong swash and weak backwash": "Beach erosion",
-    "constructive waves with weak swash and strong backwash": "Beach deposition",
+    "destructive waves with strong swash and weak backwash": "beach erosion",
+    "constructive waves with weak swash and strong backwash": "beach deposition",
     }
 
 glacial_questions = {
@@ -46,13 +48,13 @@ glacial_questions = {
 }
 
 fluvial_questions = {
-    "vertical erosion of a river bed": "v-shaped valleys",
+    "vertical erosion of a river bed": "v-shaped valley",
     #"vertical erosion of a river bed": ["v-shaped valleys", "v shaped valleys", "v-shaped valley", "v shaped valley"],
     #all corret awnsers 
-    "erosion at different rock hardness in a river's path": "waterfalls",
-    "outside bend erosion and inside bend deposition": "meanders",
+    "erosion at different rock hardness in a river's path": "waterfall",
+    "outside bend erosion and inside bend deposition": "meander",
     "a river bend being cut off": "ox-bow lake",
-    "river flooding and deposition of heavy sediment along the banks": "levees",
+    "river flooding and deposition of heavy sediment along the banks": "levee",
     "finer sediment spread across valley during floods": "flood plain",
 }
 
@@ -112,29 +114,37 @@ def study_mode():
     process, questions = process_selection()
 
     for question, answer in questions.items():
-        print(f"Study this: A {answer} is formed though {question}.")
+        print(f"Study this: A {answer.title()} is formed though {question}.")
 
 def quiz_answer_checker(response, answer, score):
-    if response.lower() in answer.lower() and len(response) > 4:
-            #length > than 4 so you cant cheat
-            #so if responce contains, not just is -- so both waterfall and waterfalls
-            # or have a list of correct answers as
-        if response.lower() == answer.lower():
-            print("Exact match!")
-            score += 2
+    # if response.lower() in answer.lower() and len(response) > 4:
+
+    response = response.lower().replace("-", "").replace(" ", "").replace("s", "")
+    answer = answer.lower().replace("-", "").replace(" ", "").replace("s", "")
+
+    if response == answer:
+        #length WAS >4 so you cant cheat
+        #so if responce contains, not just is -- so both waterfall and waterfalls
+        # But NOW removes hyphens, spaces and 's's
+
+        print("correct")
+        score += 2
+    elif response in answer and len(response) > 4:
+        print(f"you are close, Try one more time")
+        letters_off = len(answer) - len(response)
+        print (f"you are {letters_off} letters off") #works becuase the other letter must be inside
+        response = input("> ").lower().replace("-", "").replace(" ", "").replace("s", "") #move out of this funcation and add try counters 
+        if response == answer:
+            print("correct")
+            score += 1
         else:
-            print(f"you are close, Try one more time")
-            response = input("> ")
-            if response.lower() == answer.lower():
-                print("correct!")
-                score += 1
-            else:
-                print(f"Wrong! The correct answer is: {answer.title()}")
+            print("Incorrect, but you were close!")
+
         # if close, give a hint
         # just give a hint anyway
         # give a few tries
-    elif response == "":
-        response = input("Please enter an answer: ")
+    # elif response == "":
+    #     response = input("Please enter an answer: ")
     else:
         print(f"Wrong! The correct answer is: {answer.title()}")
 
@@ -160,9 +170,13 @@ def quiz_mode():
 
         # progress message
         questions_answered += 1
+        remaining_questions = number_of_questions - questions_answered
+        if remaining_questions == 0:
+            print(f"Congratulations! You've answered all questions.")
+        else:
 
-        print(f"you have {number_of_questions - questions_answered} remaining questions, you have answered {questions_answered} questions in {total_time:.2f} seconds")
-        #edge case for non purlas , ect 
+            print(f"You have {remaining_questions} remaining question{'s' if remaining_questions != 1 else ''}, you have answered {questions_answered} question{'s' if questions_answered != 1 else ''} in {total_time:.2f} second{'s' if total_time != 1 else ''}.") 
+
 
     final_score = scoring(score, total_time, number_of_questions) # add more factors
 
