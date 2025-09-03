@@ -1,15 +1,13 @@
 # to do:
-    #randoize odaer of dicoenrys apperieng 
-
     # clean stuff up
         # decide what to call things, call game studying and study mode learn mode
     # make quiz mode work
-        #omit hyphens and spaces
-        #scoring
-    # make it more flexable -- allow for different question types
+        #omit only trailing 's' not all 's's
+        #ideas on how scoring could work
+    # make it more flexible -- allow for different question types
     # make end menu work
-        #quiting and restartung
-    # high scores in csv
+        #quitting and restarting
+    # make high score work
     #able to load in csv of new questions
     #change dictionary to custom class
 
@@ -118,37 +116,26 @@ def study_mode():
 
 def quiz_answer_checker(response, answer, score):
     # if response.lower() in answer.lower() and len(response) > 4:
+    trys = 0
 
     response = response.lower().replace("-", "").replace(" ", "").replace("s", "")
-    answer = answer.lower().replace("-", "").replace(" ", "").replace("s", "")
+    # just trailing s -- [-1] place in string    word[:-1] if word.endswith('s') else word
+    striped_answer = answer.lower().replace("-", "").replace(" ", "").replace("s", "")
 
-    if response == answer:
+    if response == striped_answer:
         #length WAS >4 so you cant cheat
         #so if responce contains, not just is -- so both waterfall and waterfalls
         # But NOW removes hyphens, spaces and 's's
 
-        print("correct")
+        print(f"Correct")
         score += 2
-    elif response in answer and len(response) > 4:
-        print(f"you are close, Try one more time")
-        letters_off = len(answer) - len(response)
-        print (f"you are {letters_off} letters off") #works becuase the other letter must be inside
-        response = input("> ").lower().replace("-", "").replace(" ", "").replace("s", "") #move out of this funcation and add try counters 
-        if response == answer:
-            print("correct")
-            score += 1
-        else:
-            print("Incorrect, but you were close!")
-
-        # if close, give a hint
-        # just give a hint anyway
-        # give a few tries
-    # elif response == "":
-    #     response = input("Please enter an answer: ")
+    elif response in striped_answer and len(response) > 4:
+        letters_off = len(striped_answer) - len(response)
+        print(f"You are {letters_off} letters off, Try one more time")
+        trys += 1
     else:
         print(f"Wrong! The correct answer is: {answer.title()}")
-
-    return score
+    return score, trys
 
 def quiz_mode():
 
@@ -158,40 +145,172 @@ def quiz_mode():
     questions_answered = 0
     number_of_questions = len(questions)
 
-    for question, answer in questions.items():
+    question_list = list(questions.items())
+    random.shuffle(question_list)
+
+    for question, answer in question_list:
+        trys = 0
         start_time = time.time()
         print(f"What geographical feature is formed through {question}?")
         response = input("> ")
-        score = quiz_answer_checker(response, answer, score)
+        score, trys = quiz_answer_checker(response, answer, score)
+        if trys == 1:  #mayby swap with a while ture and break if awsnered 
+            response = input("> ")
+            score, trys = quiz_answer_checker(response, answer, score)
+            score = score - 1 #penalty for second try
 
         end_time = time.time()
         elapsed_time = end_time - start_time
         total_time = total_time + elapsed_time
 
+        total_trys = trys + 1
+
         # progress message
         questions_answered += 1
         remaining_questions = number_of_questions - questions_answered
         if remaining_questions == 0:
-            print(f"Congratulations! You've answered all questions.")
+            print(f"Congratulations! You've completed all questions.")
         else:
 
-            print(f"You have {remaining_questions} remaining question{'s' if remaining_questions != 1 else ''}, you have answered {questions_answered} question{'s' if questions_answered != 1 else ''} in {total_time:.2f} second{'s' if total_time != 1 else ''}.") 
+            print(f"You have {remaining_questions} remaining question{'s' if remaining_questions != 1 else ''}, you have completed {questions_answered} question{'s' if questions_answered != 1 else ''} in {total_time:.2f} second{'s' if total_time != 1 else ''}.") 
 
-
-    final_score = scoring(score, total_time, number_of_questions) # add more factors
+    final_score = scoring(score, total_time, number_of_questions, total_trys) # add more factors
 
     return final_score
 
+def quiz_mode_multichoice():
 
-def scoring(score, total_time):
-    #print(f"You answered {no_questions} questions correctly, in {total_time:.2f} seconds.")
-    final_score = score
+    process, questions = process_selection()
+
+    total_time = 0
+    score = 0
+    questions_answered = 0
+    number_of_questions = len(questions)
+
+    question_list = list(questions.items())  # returns 2 values, questions, answers
+    random.shuffle(question_list)
+
+
+    for question, answer in question_list:
+        trys = 0
+        start_time = time.time()
+
+        all_answer_choices = list(questions.values())
+        all_answer_choices.remove(answer)
+        random.shuffle(all_answer_choices)
+
+        answer_choices = [answer, (all_answer_choices[0]), (all_answer_choices[1]), (all_answer_choices[2])]
+        random.shuffle(answer_choices)
+
+        answered = False
+        while answered == False:
+            print(f"What geographical feature is formed through {question}?")
+            print(f" A: {answer_choices[0]}")
+            print(f" B: {answer_choices[1]}")
+            print(f" C: {answer_choices[2]}")
+            print(f" D: {answer_choices[3]}")
+            response = input("> ")
+
+            if response.lower() == "a":
+                selected_option = answer_choices[0]
+                answered = True
+            elif response.lower() == "b":
+                selected_option = answer_choices[1] 
+                answered = True
+            elif response.lower() == "c":
+                selected_option = answer_choices[2]
+                answered = True
+            elif response.lower() == "d":
+                selected_option = answer_choices[3]
+                answered = True
+            else:
+                print("Invalid option. Please choose A, B, C, or D.")
+                trys += 1
+
+        score, useless = quiz_answer_checker(selected_option, answer, 0)
+
+        end_time = time.time()
+        elapsed_time = end_time - start_time
+        total_time = total_time + elapsed_time
+
+        total_trys = trys + 1
+        questions_answered += 1
+
+        # progress message
+        remaining_questions = number_of_questions - questions_answered
+        if remaining_questions == 0:
+            print(f"Congratulations! You've completed all questions.")
+        else:
+            print(f"You have {remaining_questions} remaining question{'s' if remaining_questions != 1 else ''}, you have completed {questions_answered} question{'s' if questions_answered != 1 else ''} in {total_time:.2f} second{'s' if total_time != 1 else ''}.") 
+            print(f"Your current score is: {score}")
+
+    final_score = scoring(score, total_time, number_of_questions, total_trys) # add more factors
+
     return final_score
 
-def end_menu(user_name, score):
-    print(f"Thank you for learning, {user_name}!")
+def scoring(score, total_time, number_of_questions, total_trys):
+    accuracy = score / (number_of_questions * 2)  # 2 points per correct
+    print(accuracy)
+    time_bonus = max(0, (number_of_questions * 10 - total_time) / (number_of_questions * 10))  # up to 1.0
+    print(time_bonus)
+    try_penalty = max(0, 1 - (total_trys - number_of_questions) * 0.1)  # lose 0.1 per extra try
+    print(try_penalty)
+    final_score = round(accuracy  + time_bonus * 0.3 + try_penalty * 0.1, 3)
+    final_score *= 100
+    print(final_score)
+    return final_score
+    print(final_score)
 
-    if input("Press 'Enter' to do something else or 'q' to quit.").lower() == 'q':
+
+def save_high_score(user_name, score, filename="C:\\Users\\keaar\\Documents\\VS Code\\Python\\Quiz_game - 1.2\\dtg_1.2_study\\1.2_high_scores.csv"):
+    high_scores = get_high_scores()
+    try:
+        if user_name in high_scores: #if name is alredy in system
+            if score > high_scores[user_name]:  # if the new score is higher than the old one
+                high_scores[user_name] = score  # update the score in dictionary
+                with open(filename, mode='w', newline='') as csv_file_high_scores:
+                    writer = csv.writer(csv_file_high_scores)
+                    for name, score in high_scores.items():
+                        writer.writerow([name, score])
+                print(f"High score saved for {user_name.title()} with a score of {score}.")
+            else:
+                print("This wasn't your high score, it was not saved.")
+        else: 
+            #add new entry
+            with open(filename, mode='a', newline='') as csv_file_high_scores:
+                writer = csv.writer(csv_file_high_scores)
+                writer.writerow([user_name, score])
+            print(f"High score saved for {user_name.title()} with a score of {score}.")
+
+    except Exception as e:
+        print(f"Error saving high score: {e}")
+
+def get_high_scores(filename="C:\\Users\\keaar\\Documents\\VS Code\\Python\\Quiz_game - 1.2\\dtg_1.2_study\\1.2_high_scores.csv"): 
+    high_scores = {}
+    try:
+         with open(filename, newline='') as csv_file_high_scores:
+            reader = csv.reader(csv_file_high_scores)
+
+            for name, score in reader:
+                high_scores[name] = int(score)  # Store as {name: score}
+
+            return high_scores
+    except Exception as e:
+        print(f"Whoops reading the high scores failed: {e}. Try again later when I've fixed the issue.")
+        return {}
+
+
+def end_menu(user_name, score, mode):
+    if mode == "quiz":
+        print(f"Your final score is: {score}")
+        if input("would you like to save your score? y/n >> ").lower() == 'y':
+            save_high_score(user_name, score)
+            print("Score saved.")
+        print (f"here are all the scores: {get_high_scores()}")
+
+    print(f"Thank you for playing, {user_name}!")
+
+    if input("Press 'Enter' to do something else or 'x' to quit.").lower() == 'x':
         print("Goodbye! 👋")
         exit()
     else:
@@ -209,6 +328,10 @@ def main(user_name):
     elif mode == "quiz":
         score = quiz_mode()
 
-    end_menu(user_name, score)
+    end_menu(user_name, score, mode)
+
+print(get_high_scores())
+
+# quiz_mode_multichoice()
 
 main("")
