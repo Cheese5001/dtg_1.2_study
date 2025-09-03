@@ -47,8 +47,6 @@ glacial_questions = {
 
 fluvial_questions = {
     "vertical erosion of a river bed": "v-shaped valley",
-    #"vertical erosion of a river bed": ["v-shaped valleys", "v shaped valleys", "v-shaped valley", "v shaped valley"],
-    #all corret awnsers 
     "erosion at different rock hardness in a river's path": "waterfall",
     "outside bend erosion and inside bend deposition": "meander",
     "a river bend being cut off": "ox-bow lake",
@@ -56,7 +54,7 @@ fluvial_questions = {
     "finer sediment spread across valley during floods": "flood plain",
 }
 
-
+ 
 def start_menu() -> str:
     print("Welcome to my Geography quiz game!")
     user_name = input("What is your name today? >> ")
@@ -79,9 +77,17 @@ def choose_mode()-> str:
         mode = "study"
     elif mode == "q" or mode == "quiz":
         mode = "quiz"
+        quiz_type = input("Choose quiz type: written (W) or multi choice (M) >> ").lower()
+        if quiz_type == "w" or quiz_type == "written":
+            mode = "quiz_written"
+        elif quiz_type == "m" or quiz_type == "multi choice":
+            mode = "quiz_multichoice"
+        else:
+            print("Invalid choice, defaulting to written quiz.")
+            mode = "quiz_written"
     else:
         print("Invalid choice, defaulting to quiz mode.")
-        mode = "quiz"
+        mode = "quiz_multichoicea"
     return mode
 
 def process_selection():
@@ -101,7 +107,7 @@ def process_selection():
         process = "tectonic"
         questions = tectonic_questions
     else:
-        print("Invalid process selected, defaulting to Coastal mode.")
+        print("Invalid process selected, defaulting to fluvial processes.")
         process = "fluvial"
         questions = fluvial_questions
 
@@ -114,13 +120,17 @@ def study_mode():
     for question, answer in questions.items():
         print(f"Study this: A {answer.title()} is formed though {question}.")
 
+
 def quiz_answer_checker(response, answer, score):
     # if response.lower() in answer.lower() and len(response) > 4:
     trys = 0
 
-    response = response.lower().replace("-", "").replace(" ", "").replace("s", "")
-    # just trailing s -- [-1] place in string    word[:-1] if word.endswith('s') else word
-    striped_answer = answer.lower().replace("-", "").replace(" ", "").replace("s", "")
+    response = response.lower().replace("-", "").replace(" ", "")
+    if response.endswith('s'): #just trailing s 
+        response = response[:-1] 
+    striped_answer = answer.lower().replace("-", "").replace(" ", "")
+    if striped_answer.endswith('s'):
+        striped_answer = striped_answer[:-1] 
 
     if response == striped_answer:
         #length WAS >4 so you cant cheat
@@ -137,10 +147,11 @@ def quiz_answer_checker(response, answer, score):
         print(f"Wrong! The correct answer is: {answer.title()}")
     return score, trys
 
-def quiz_mode():
+def quiz_mode_written():
 
     process, questions = process_selection()
     total_time = 0
+    total_trys = 0
     score = 0
     questions_answered = 0
     number_of_questions = len(questions)
@@ -151,13 +162,24 @@ def quiz_mode():
     for question, answer in question_list:
         trys = 0
         start_time = time.time()
-        print(f"What geographical feature is formed through {question}?")
-        response = input("> ")
-        score, trys = quiz_answer_checker(response, answer, score)
+
+        answered = False
+        while answered == False:
+            print(f"What geographical feature is formed through {question}?")
+            response = input("> ")
+            if response.strip() == "":
+                print("Invalid input. Please try again.")
+            else:
+                answered = True
+
+        points, trys = quiz_answer_checker(response, answer, score)
+        score += points
         if trys == 1:  #mayby swap with a while ture and break if awsnered 
             response = input("> ")
-            score, trys = quiz_answer_checker(response, answer, score)
+            points, trys = quiz_answer_checker(response, answer, score)
+            score += points
             score = score - 1 #penalty for second try
+
 
         end_time = time.time()
         elapsed_time = end_time - start_time
@@ -186,13 +208,13 @@ def quiz_mode_multichoice():
     score = 0
     questions_answered = 0
     number_of_questions = len(questions)
+    total_trys = 0
 
     question_list = list(questions.items())  # returns 2 values, questions, answers
     random.shuffle(question_list)
 
 
     for question, answer in question_list:
-        trys = 0
         start_time = time.time()
 
         all_answer_choices = list(questions.values())
@@ -225,16 +247,19 @@ def quiz_mode_multichoice():
                 answered = True
             else:
                 print("Invalid option. Please choose A, B, C, or D.")
-                trys += 1
+                total_trys += 1
 
-        score, useless = quiz_answer_checker(selected_option, answer, 0)
+        points, useless = quiz_answer_checker(selected_option, answer, 0)  #uses same funcation as written so some of the funcation is unused 
+        score += points
+
 
         end_time = time.time()
         elapsed_time = end_time - start_time
-        total_time = total_time + elapsed_time
+        total_time += elapsed_time
 
-        total_trys = trys + 1
+        total_trys += 1
         questions_answered += 1
+        print(total_trys)
 
         # progress message
         remaining_questions = number_of_questions - questions_answered
@@ -249,18 +274,25 @@ def quiz_mode_multichoice():
     return final_score
 
 def scoring(score, total_time, number_of_questions, total_trys):
-    accuracy = score / (number_of_questions * 2)  # 2 points per correct
+    
+    ##!!! In progesess not finished/working like i want it !!!!
+
+    accuracy = score / (number_of_questions * 2)  # up to 1.0 --- 0.5 = 50% correct --- partially correct/with hints also accounted
     print(accuracy)
-    time_bonus = max(0, (number_of_questions * 10 - total_time) / (number_of_questions * 10))  # up to 1.0
+    time_bonus = max(0, (number_of_questions * 20 - total_time) / (number_of_questions * 20))  # up to 1.0  # avg total time 10 sec, Needs way less weight 
     print(time_bonus)
     try_penalty = max(0, 1 - (total_trys - number_of_questions) * 0.1)  # lose 0.1 per extra try
     print(try_penalty)
-    final_score = round(accuracy  + time_bonus * 0.3 + try_penalty * 0.1, 3)
-    final_score *= 100
-    print(final_score)
+    final_score = round((accuracy * 10) * (time_bonus + try_penalty * 0.1), 3)
+    print(f"final_score before mult: {final_score}")
+    final_score *= 1000
+    #remove decimal places to int not float
+    final_score = int(final_score)
+    print(f"final_score: {final_score}")
     return final_score
-    print(final_score)
 
+
+#if opening on different device, please configure file path
 
 def save_high_score(user_name, score, filename="C:\\Users\\keaar\\Documents\\VS Code\\Python\\Quiz_game - 1.2\\dtg_1.2_study\\1.2_high_scores.csv"):
     high_scores = get_high_scores()
@@ -301,9 +333,9 @@ def get_high_scores(filename="C:\\Users\\keaar\\Documents\\VS Code\\Python\\Quiz
 
 
 def end_menu(user_name, score, mode):
-    if mode == "quiz":
+    if mode == "quiz_written" or mode == "quiz_multichoice":
         print(f"Your final score is: {score}")
-        if input("would you like to save your score? y/n >> ").lower() == 'y':
+        if input("would you like to save your score? y/n >> ").lower() == 'y': #saves high score
             save_high_score(user_name, score)
             print("Score saved.")
         print (f"here are all the scores: {get_high_scores()}")
@@ -325,13 +357,20 @@ def main(user_name):
 
     if mode == "study":
         score = study_mode()
-    elif mode == "quiz":
-        score = quiz_mode()
+    elif mode == "quiz_written":
+        score = quiz_mode_written()
+    elif mode == "quiz_multichoice":
+        score = quiz_mode_multichoice()
+
 
     end_menu(user_name, score, mode)
 
 print(get_high_scores())
 
 # quiz_mode_multichoice()
+
+
+save_high_score("rhiHnO_test", 41.5)
+
 
 main("")
