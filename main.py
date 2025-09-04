@@ -58,7 +58,7 @@ fluvial_questions = {
 def start_menu() -> str:
     print("Welcome to my Geography quiz game!")
     user_name = input("What is your name today? >> ")
-    if user_name == "":
+    if user_name == "" or user_name == " ":
         user_name = "Player"
     elif user_name.lower() == "baker":
         print("Baker is banned from this game!")
@@ -72,12 +72,13 @@ def start_menu() -> str:
 
 def choose_mode()-> str:
     print("Choose a mode: study(S) or quiz(Q)")
-    mode = input("> ").lower()
+    mode = input("> ").lower().strip()
     if mode == "s" or mode == "study":
         mode = "study"
+        print("Study mode selected.")
     elif mode == "q" or mode == "quiz":
-        mode = "quiz"
-        quiz_type = input("Choose quiz type: written (W) or multi choice (M) >> ").lower()
+        #no need for confation cos is says below
+        quiz_type = input("Choose quiz type: written (W) or multi choice (M) >> ").lower().strip() 
         if quiz_type == "w" or quiz_type == "written":
             mode = "quiz_written"
         elif quiz_type == "m" or quiz_type == "multi choice":
@@ -88,6 +89,7 @@ def choose_mode()-> str:
     else:
         print("Invalid choice, defaulting to quiz mode, multichoice.")
         mode = "quiz_multichoice"
+    print(f"{mode.replace('_', ' ').title()} selected.")
     return mode
 
 def process_selection():
@@ -233,16 +235,16 @@ def quiz_mode_multichoice():
             print(f" D: {answer_choices[3]}")
             response = input("> ")
 
-            if response.lower() == "a":
+            if response.lower().strip() == "a":
                 selected_option = answer_choices[0]
                 answered = True
-            elif response.lower() == "b":
+            elif response.lower().strip() == "b":
                 selected_option = answer_choices[1] 
                 answered = True
-            elif response.lower() == "c":
+            elif response.lower().strip() == "c":
                 selected_option = answer_choices[2]
                 answered = True
-            elif response.lower() == "d":
+            elif response.lower().strip() == "d":
                 selected_option = answer_choices[3]
                 answered = True
             else:
@@ -335,7 +337,7 @@ def get_high_scores(filename="C:\\Users\\keaar\\Documents\\VS Code\\Python\\Quiz
 def end_menu(user_name, score, mode):
     if mode == "quiz_written" or mode == "quiz_multichoice":
         print(f"Your final score is: {score}")
-        if input("would you like to save your score? y/n >> ").lower() == 'y': #saves high score
+        if input("would you like to save your score? y/n >> ").lower().strip() == 'y': #saves high score
             save_high_score(user_name, score)
         else:
             print("Score not saved.")
@@ -346,7 +348,7 @@ def end_menu(user_name, score, mode):
 
     print(f"Thank you for playing, {user_name}!")
 
-    if input("Press 'Enter' to do something else or 'x' to quit.").lower() == 'x':
+    if input("Press 'Enter' to do something else or 'x' to quit.").lower().strip() == 'x':
         print("Goodbye! 👋")
         exit()
     else:
