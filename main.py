@@ -83,11 +83,11 @@ def choose_mode()-> str:
         elif quiz_type == "m" or quiz_type == "multi choice":
             mode = "quiz_multichoice"
         else:
-            print("Invalid choice, defaulting to written quiz.")
-            mode = "quiz_written"
+            print("Invalid choice, defaulting to multichoice quiz.")
+            mode = "quiz_multichoice"
     else:
-        print("Invalid choice, defaulting to quiz mode.")
-        mode = "quiz_multichoicea"
+        print("Invalid choice, defaulting to quiz mode, multichoice.")
+        mode = "quiz_multichoice"
     return mode
 
 def process_selection():
@@ -283,7 +283,7 @@ def scoring(score, total_time, number_of_questions, total_trys):
     print(time_bonus)
     try_penalty = max(0, 1 - (total_trys - number_of_questions) * 0.1)  # lose 0.1 per extra try
     print(try_penalty)
-    final_score = round((accuracy * 10) * (time_bonus + try_penalty * 0.1), 3)
+    final_score = round((accuracy * 20) * (time_bonus * 0.5 + try_penalty * 0.1), 3)
     print(f"final_score before mult: {final_score}")
     final_score *= 1000
     #remove decimal places to int not float
@@ -337,8 +337,12 @@ def end_menu(user_name, score, mode):
         print(f"Your final score is: {score}")
         if input("would you like to save your score? y/n >> ").lower() == 'y': #saves high score
             save_high_score(user_name, score)
-            print("Score saved.")
-        print (f"here are all the scores: {get_high_scores()}")
+        else:
+            print("Score not saved.")
+        print (f"here are all the scores:")
+        high_scores = get_high_scores()
+        for name, score in high_scores.items():
+            print(f"{name}  {score}")
 
     print(f"Thank you for playing, {user_name}!")
 
@@ -365,12 +369,34 @@ def main(user_name):
 
     end_menu(user_name, score, mode)
 
-print(get_high_scores())
-
-# quiz_mode_multichoice()
-
-
-save_high_score("rhiHnO_test", 41.5)
-
-
 main("")
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#400th line !! 🎉🎉
