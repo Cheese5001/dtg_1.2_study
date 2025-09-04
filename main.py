@@ -1,23 +1,12 @@
 # to do:
     # clean stuff up
-        # decide what to call things, call game studying and study mode learn mode
-    # make quiz mode work
-        #omit only trailing 's' not all 's's
-        #ideas on how scoring could work
     # make it more flexible -- allow for different question types
-    # make end menu work
-        #quitting and restarting
-    # make high score work
-    #able to load in csv of new questions
-    #change dictionary to custom class
-
-
+    # able to load in csv of new questions
+    # change dictionary to custom class
 
 import random
 import csv
 import time
-
-user_name = ""
 
 tectonic_questions = {
 
@@ -32,7 +21,6 @@ tectonic_questions = {
 coastal_questions = {
     "longshore drift depositing sand beyond a headland": "spits",
     "waves piling up sand offshore into a ridge": "sand bar",
-#   "waves eroding cliffs by air pressure in cracks": "Hydraulic action features (e.g. notches, caves)",
     "destructive waves with strong swash and weak backwash": "beach erosion",
     "constructive waves with weak swash and strong backwash": "beach deposition",
     }
@@ -56,11 +44,18 @@ fluvial_questions = {
 
  
 def start_menu() -> str:
-    print("Welcome to my Geography quiz game!")
+    message = "Loading..."
+    for char in message:
+        print(char, end='', flush=True)
+        time.sleep(0.05)
+    time.sleep(3)
+    print("\n")
+
+    print("Welcome to the Geography quiz game!")
     user_name = input("What is your name today? >> ")
     if user_name == "" or user_name == " ":
         user_name = "Player"
-    elif user_name.lower() == "baker":
+    elif user_name.lower().strip() == "baker":
         print("Baker is banned from this game!")
         print("Goodbye! 👋")
         exit()
@@ -77,6 +72,7 @@ def choose_mode()-> str:
         mode = "study"
         print("Study mode selected.")
     elif mode == "q" or mode == "quiz":
+
         #no need for confation cos is says below
         quiz_type = input("Choose quiz type: written (W) or multi choice (M) >> ").lower().strip() 
         if quiz_type == "w" or quiz_type == "written":
@@ -94,7 +90,7 @@ def choose_mode()-> str:
 
 def process_selection():
 
-    process = input("Select processes: Coastal (C), Fluvial (F), Glacial (G), Tectonic (T) >> ").lower()
+    process = input("Select processes: Coastal (C), Fluvial (F), Glacial (G), Tectonic (T) >> ").lower().strip()
 
     if process == "coastal" or process == "c":
         process = "coastal" # so it writes it properly
@@ -134,6 +130,9 @@ def quiz_answer_checker(response, answer, score):
     if striped_answer.endswith('s'):
         striped_answer = striped_answer[:-1] 
 
+    # add set for overlap, if overlap is found, mark correct on acount of bad spelling
+
+
     if response == striped_answer:
         #length WAS >4 so you cant cheat
         #so if responce contains, not just is -- so both waterfall and waterfalls
@@ -141,7 +140,7 @@ def quiz_answer_checker(response, answer, score):
 
         print(f"Correct")
         score += 2
-    elif response in striped_answer and len(response) > 4:
+    elif response in striped_answer and len(response) > 4:  # Check for partial matches, not relevant for multichoices
         letters_off = len(striped_answer) - len(response)
         print(f"You are {letters_off} letters off, Try one more time")
         trys += 1
@@ -167,7 +166,7 @@ def quiz_mode_written():
 
         answered = False
         while answered == False:
-            print(f"What geographical feature is formed through {question}?")
+            print(f"  {question}?")
             response = input("> ")
             if response.strip() == "":
                 print("Invalid input. Please try again.")
@@ -251,7 +250,7 @@ def quiz_mode_multichoice():
                 print("Invalid option. Please choose A, B, C, or D.")
                 total_trys += 1
 
-        points, useless = quiz_answer_checker(selected_option, answer, 0)  #uses same funcation as written so some of the funcation is unused 
+        points, useless = quiz_answer_checker(selected_option, answer, 0)  #uses same funcation as written so collent trys not relevent becuase you only get one try
         score += points
 
 
@@ -276,21 +275,14 @@ def quiz_mode_multichoice():
     return final_score
 
 def scoring(score, total_time, number_of_questions, total_trys):
-    
-    ##!!! In progesess not finished/working like i want it !!!!
 
     accuracy = score / (number_of_questions * 2)  # up to 1.0 --- 0.5 = 50% correct --- partially correct/with hints also accounted
-    print(accuracy)
     time_bonus = max(0, (number_of_questions * 20 - total_time) / (number_of_questions * 20))  # up to 1.0  # avg total time 10 sec, Needs way less weight 
-    print(time_bonus)
     try_penalty = max(0, 1 - (total_trys - number_of_questions) * 0.1)  # lose 0.1 per extra try
-    print(try_penalty)
     final_score = round((accuracy * 20) * (time_bonus * 0.5 + try_penalty * 0.1), 3)
-    print(f"final_score before mult: {final_score}")
     final_score *= 1000
     #remove decimal places to int not float
     final_score = int(final_score)
-    print(f"final_score: {final_score}")
     return final_score
 
 
@@ -371,34 +363,4 @@ def main(user_name):
 
     end_menu(user_name, score, mode)
 
-main("")
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-#400th line !! 🎉🎉
+main("") 
